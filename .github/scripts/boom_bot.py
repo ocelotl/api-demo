@@ -10,6 +10,7 @@ def check_pull_request(repo, pr_number):
 
     for file in files:
         if file.filename.endswith('.rst'):
+            print(file.raw_data)
             content = file.raw_data.decode('utf-8')
             lines = content.split('\n')
 
@@ -21,8 +22,7 @@ def check_pull_request(repo, pr_number):
 
 if __name__ == "__main__":
     # Replace 'your_token' with your GitHub token
-    g = Github('your_token')
+    g = Github(environ.get("GITHUB_TOKEN"))
     repo = g.get_repo('ocelotl/api-demo')
-    pr_number = 1  # Replace with the actual pull request number
 
-    check_pull_request(repo, environ.get("GITHUB_REF").split("/")[2])
+    check_pull_request(repo, int(environ.get("GITHUB_REF").split("/")[2]))

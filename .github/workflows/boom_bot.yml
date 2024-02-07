@@ -29,4 +29,4 @@ jobs:
       - name: Run Boom Bot
         run: python .github/scripts/boom_bot.py
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.THE_REPO_SECRET }}
