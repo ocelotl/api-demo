@@ -8,8 +8,10 @@ from transformers import (
 )
 import torch
 from pathlib import Path
+from os.path import abspath
+from ipdb import set_trace
 
-sentence_classifier_path = str(Path(__file__))
+sentence_classifier_path = str(Path(abspath(__file__)).parent)
 
 # Load model and tokenizer from disk
 model = DistilBertForSequenceClassification.from_pretrained(
@@ -61,8 +63,7 @@ def check_pull_request(repo, pr_number):
             for index, line in enumerate(lines):
                 if (
                     line.startswith("+") and
-                    len(line) > 1 and
-                    line[1:].startswith("boom")
+                    len(line) > 1
                 ):
                     # Tokenize the input sentence
                     input_sentence = line[1:]
@@ -91,18 +92,24 @@ def check_pull_request(repo, pr_number):
                         f"This sentence can be rewritten using {modal_verb}"
                     )
 
-                    pr.create_review_comment(
-                        message,
-                        pr.get_commits()[pr.commits - 1],
-                        file.filename,
-                        line=index,
-                        side="RIGHT"
-                    )
+                    try:
+                        pr.create_review_comment(
+                            message,
+                            pr.get_commits()[pr.commits - 1],
+                            file.filename,
+                            line=index - 2,
+                            side="RIGHT"
+                        )
+                    except Exception as error:
+                        the_error = error
+                        the_error
+                        set_trace()
+                        pass
 
 
 if __name__ == "__main__":
     g = Github(environ.get("GITHUB_TOKEN"))
     repo = g.get_repo('ocelotl/api-demo')
 
-    check_pull_request(repo, int(environ.get("GITHUB_REF").split("/")[2]))
-    # check_pull_request(repo, 2)
+    # check_pull_request(repo, int(environ.get("GITHUB_REF").split("/")[2]))
+    check_pull_request(repo, 2)
