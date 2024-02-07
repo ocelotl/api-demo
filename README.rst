@@ -1,7 +1,5 @@
-API Demo
-========
+The API has classes
 
-boom asdfasdf
-sdfsdf
-boom asdfasd
-boom
+It is optional that the API has classes
+
+It is required that the API has classes
