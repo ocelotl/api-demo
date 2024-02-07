@@ -2,6 +2,20 @@
 
 from os import environ
 from github import Github
+from transformers import (
+    DistilBertTokenizer,
+    DistilBertForSequenceClassification
+)
+import torch
+from pathlib import Path
+
+sentence_classifier_path = str(Path(__file__))
+
+# Load model and tokenizer from disk
+model = DistilBertForSequenceClassification.from_pretrained(
+    sentence_classifier_path
+)
+tokenizer = DistilBertTokenizer.from_pretrained("distilbert-base-uncased")
 
 {
     'sha': '681ac7d78883f0570ec96385092d30402a030f70',
@@ -50,9 +64,35 @@ def check_pull_request(repo, pr_number):
                     len(line) > 1 and
                     line[1:].startswith("boom")
                 ):
+                    # Tokenize the input sentence
+                    input_sentence = line[1:]
+                    tokenized_input = tokenizer(
+                        input_sentence, return_tensors='pt'
+                    )
+
+                    # Perform inference
+                    with torch.no_grad():
+                        output = model(**tokenized_input)
+
+                    # Get the predicted class
+                    predicted_class = torch.argmax(output.logits, dim=1).item()
                     # https://pygithub.readthedocs.io/en/v2.2.0/github_objects/PullRequest.html?highlight=create_review#github.PullRequest.PullRequest.create_review_comment
+
+                    if predicted_class == 0:
+                        continue
+
+                    if predicted_class == 1:
+                        modal_verb = "MAY"
+
+                    if predicted_class == 2:
+                        modal_verb = "MUST"
+
+                    message = (
+                        f"This sentence can be rewritten using {modal_verb}"
+                    )
+
                     pr.create_review_comment(
-                        "sdfsdfsad",
+                        message,
                         pr.get_commits()[pr.commits - 1],
                         file.filename,
                         line=index,
