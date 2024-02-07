@@ -3,6 +3,37 @@
 from os import environ
 from github import Github
 
+{
+    'sha': '681ac7d78883f0570ec96385092d30402a030f70',
+    'filename': 'README.rst',
+    'status': 'modified',
+    'additions': 5,
+    'deletions': 0,
+    'changes': 5,
+    'blob_url': (
+        'https://github.com/ocelotl/api-demo/blob/'
+        '9b03defde2fe11040b17618a9626102f7d00fbdf/README.rst'
+    ),
+    'raw_url': (
+        'https://github.com/ocelotl/api-demo/raw/'
+        '9b03defde2fe11040b17618a9626102f7d00fbdf/README.rst'
+    ),
+    'contents_url': (
+        'https://api.github.com/repos/ocelotl/api-demo/contents/'
+        'README.rst?ref=9b03defde2fe11040b17618a9626102f7d00fbdf'
+    ),
+    'patch': (
+        '@@ -1,2 +1,7 @@'
+        '\n API Demo'
+        '\n ========'
+        '\n+'
+        '\n+boom asdfasdf'
+        '\n+sdfsdf'
+        '\n+boom asdfasd'
+        '\n+boom'
+    )
+}
+
 
 def check_pull_request(repo, pr_number):
     pr = repo.get_pull(pr_number)
