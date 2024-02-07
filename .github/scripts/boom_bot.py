@@ -41,18 +41,26 @@ def check_pull_request(repo, pr_number):
 
     for file in files:
         if file.filename.endswith('.rst'):
-            for line in [
-                line[1:] for line in file.patch.split("\n") if
-                line.startswith("+") and
-                len(line) > 1
-            ]:
 
-                if line.strip().startswith('boom'):
-                    pr.create_issue_comment("boom found")
+            lines = file.patch.split("\n")
+
+            for index, line in enumerate(lines):
+                if (
+                    line.startswith("+") and
+                    len(line) > 1 and
+                    line[1:].startswith("boom")
+                ):
+                    # https://pygithub.readthedocs.io/en/v2.2.0/github_objects/PullRequest.html?highlight=create_review#github.PullRequest.PullRequest.create_review_comment
+                    pr.create_review_comment(
+                        "sdfsdfsad",
+                        pr.get_commits()[pr.commits - 1],
+                        file.filename,
+                        line=index,
+                        side="RIGHT"
+                    )
 
 
 if __name__ == "__main__":
-    # Replace 'your_token' with your GitHub token
     g = Github(environ.get("GITHUB_TOKEN"))
     repo = g.get_repo('ocelotl/api-demo')
 
