@@ -1,0 +1,44 @@
+name: Bonsai Bot
+
+on:
+  pull_request:
+
+jobs:
+  check-sentences:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.11
+
+      - name: Install gdown
+        run: pip install gdown
+
+      - name: Install PyGithub
+        run: pip install PyGithub
+
+      - name: Install transformers[torch]
+        run: pip install transformers[torch]
+
+      - name: Download config.json
+        working-directory: .github/scripts
+        run: gdown 19ViAQcCfpXLAK3fl7_RbkKoJUHpswsyx
+
+      - name: Download training_args.bin
+        working-directory: .github/scripts
+        run: gdown 1-5glmKt4DW_wHL9vNCrAXIhl5b-6sjE0
+
+      - name: Download model.safetensors
+        working-directory: .github/scripts
+        run: gdown 1-49cC_aYcW-W1aMJQX6Zv2IeFgZjtB-_
+
+      - name: Run Bonsai Bot
+        working-directory: .github/scripts
+        run: python bonsai_bot.py
+        env:
+          GITHUB_TOKEN: ${{ secrets.THE_REPO_SECRET }}
