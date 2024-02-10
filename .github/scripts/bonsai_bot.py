@@ -15,11 +15,17 @@ model = DistilBertForSequenceClassification.from_pretrained(
 tokenizer = DistilBertTokenizer.from_pretrained("distilbert-base-uncased")
 
 
-def check_pull_request(repo, pr_number):
-    pr = repo.get_pull(pr_number)
+if __name__ == "__main__":
+
+    pr = (
+        Github(environ.get("GITHUB_TOKEN")).
+        get_repo('ocelotl/api-demo').
+        get_pull(int(environ.get("GITHUB_REF").split("/")[2]))
+    )
 
     for file in pr.get_files():
-        if file.filename.endswith('.rst'):
+        if file.filename.endswith('.md'):
+
 
             lines = file.patch.split("\n")
 
@@ -59,11 +65,3 @@ def check_pull_request(repo, pr_number):
                         line=index - 2,
                         side="RIGHT"
                     )
-
-
-if __name__ == "__main__":
-
-    check_pull_request(
-        Github(environ.get("GITHUB_TOKEN")).get_repo('ocelotl/api-demo'),
-        int(environ.get("GITHUB_REF").split("/")[2])
-    )

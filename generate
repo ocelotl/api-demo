@@ -1,0 +1,108 @@
+Training a model to generate formal normative sentences from informal ones involves a more advanced approach, typically using machine learning and deep learning techniques. This task falls under the category of text generation and could be approached using techniques like sequence-to-sequence models.
+
+Here's a high-level outline of the steps involved in training such a model:
+
+Dataset Preparation:
+
+Collect a dataset of pairs of informal and formal normative sentences.
+Ensure each pair is semantically equivalent, representing the same meaning.
+Data Preprocessing:
+
+Tokenize the sentences into words or subwords.
+Convert words into numerical representations.
+Handle any necessary data cleaning or normalization.
+Model Selection:
+
+Choose a suitable sequence-to-sequence model architecture. Transformer-based models like GPT-3 or T5 are often used for text generation tasks.
+Model Training:
+
+Split the dataset into training and validation sets.
+Train the model on the training set, optimizing for semantic equivalence.
+Use a suitable loss function that encourages similarity between the generated and target sentences.
+Fine-tune hyperparameters based on the validation set performance.
+Evaluation:
+
+Evaluate the trained model on a test set to ensure it generalizes well to new data.
+Use metrics like BLEU score, ROUGE score, or semantic similarity metrics to assess the model's performance.
+Deployment:
+
+Once satisfied with the model's performance, deploy it for generating formal normative sentences from informal ones.
+Below is a simplified example using the Hugging Face Transformers library and the T5 model for training. Note that this is a basic outline, and you might need to adjust it based on your specific requirements and the complexity of your data.
+
+from transformers import T5Tokenizer, T5ForConditionalGeneration
+from torch.utils.data import DataLoader, TensorDataset
+import torch
+import torch.nn.functional as F
+from sklearn.model_selection import train_test_split
+
+# Assuming you have a list of pairs of informal and formal sentences
+informal_sentences = ["Keep the door closed.", ...]
+formal_sentences = ["You must keep the door closed.", ...]
+
+# Tokenize the sentences
+tokenizer = T5Tokenizer.from_pretrained("t5-base")
+tokenized_inputs = tokenizer(informal_sentences, return_tensors="pt", padding=True, truncation=True)
+tokenized_targets = tokenizer(formal_sentences, return_tensors="pt", padding=True, truncation=True)
+
+# Split the dataset
+input_ids_train, input_ids_val, target_ids_train, target_ids_val = train_test_split(
+    tokenized_inputs["input_ids"], tokenized_targets["input_ids"], test_size=0.1, random_state=42
+)
+
+# Create DataLoader for training and validation
+train_dataset = TensorDataset(input_ids_train, target_ids_train)
+val_dataset = TensorDataset(input_ids_val, target_ids_val)
+train_dataloader = DataLoader(train_dataset, batch_size=4, shuffle=True)
+val_dataloader = DataLoader(val_dataset, batch_size=4, shuffle=False)
+
+# Model initialization
+model = T5ForConditionalGeneration.from_pretrained("t5-base")
+
+# Training loop
+optimizer = torch.optim.AdamW(model.parameters(), lr=5e-5)
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+model.to(device)
+
+num_epochs = 3
+for epoch in range(num_epochs):
+    model.train()
+    for batch in train_dataloader:
+        input_ids, target_ids = batch
+        input_ids, target_ids = input_ids.to(device), target_ids.to(device)
+
+        optimizer.zero_grad()
+        outputs = model(input_ids=input_ids, labels=target_ids)
+        loss = outputs.loss
+        loss.backward()
+        optimizer.step()
+
+    # Validation
+    model.eval()
+    with torch.no_grad():
+        total_loss = 0
+        for batch in val_dataloader:
+            input_ids, target_ids = batch
+            input_ids, target_ids = input_ids.to(device), target_ids.to(device)
+
+            outputs = model(input_ids=input_ids, labels=target_ids)
+            total_loss += outputs.loss.item()
+
+        avg_loss = total_loss / len(val_dataloader)
+        print(f"Epoch {epoch + 1}/{num_epochs}, Validation Loss: {avg_loss}")
+
+# Example usage to generate formal normative sentence
+informal_input = "Close the window."
+tokenized_input = tokenizer(informal_input, return_tensors="pt", padding=True, truncation=True)
+input_ids = tokenized_input["input_ids"].to(device)
+output_ids = model.generate(input_ids, max_length=50, num_beams=4, length_penalty=2.0, early_stopping=True)
+
+formal_output = tokenizer.decode(output_ids[0], skip_special_tokens=True)
+print("Formal normative sentence:", formal_output)
+
+
+This is a basic example and might require fine-tuning based on your specific needs. Additionally, depending on your dataset, you may need to handle domain-specific language or apply more sophisticated preprocessing techniques.
+
+￼
+￼
+￼
+
