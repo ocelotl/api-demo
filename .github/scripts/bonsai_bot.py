@@ -26,7 +26,6 @@ if __name__ == "__main__":
     for file in pr.get_files():
         if file.filename.endswith('.md'):
 
-
             lines = file.patch.split("\n")
 
             for index, line in enumerate(lines):
